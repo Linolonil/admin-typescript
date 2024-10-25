@@ -17,14 +17,6 @@ const router = createRouter({
         auth: true,
       },
     },
-    {
-      path: '/create-schedule',
-      name: 'create-schedule',
-      component: () => import('@/views/CreateScheduleView.vue'),
-      meta: {
-        auth: true,
-      },
-    },
   ],
 });
 

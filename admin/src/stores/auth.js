@@ -6,7 +6,7 @@ import { computed, ref } from 'vue';
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'));
   const refreshToken = ref(localStorage.getItem('refreshtoken'));
-
+  const tokenAuth = 'Bearer ' + token.value;
   const user = ref(null);
 
   try {
@@ -46,12 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
   async function checkToken() {
     try {
-      const tokenAuth = 'Bearer ' + token.value;
-      const response = await api.get('/auth/verify', {
-        headers: {
-          Authorization: tokenAuth,
-        },
-      });
+      const response = await api.get('/auth/verify');
 
       return response;
     } catch (error) {
@@ -88,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     checkToken,
     token,
+    tokenAuth,
     refreshToken,
     user,
     setToken,

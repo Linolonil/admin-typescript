@@ -1,41 +1,159 @@
+<template>
+  <div class="flex h-screen bg-gray-100">
+    <!-- Aside Navigation -->
+    <aside
+      :class="[
+        'transition-all duration-300 ease-in-out bg-white shadow-md flex flex-col',
+        isMenuCollapsed ? 'w-24' : 'w-48',
+      ]"
+    >
+      <!-- Logo -->
+      <div class="p-4 flex justify-center">
+        <img
+          v-if="!isMenuCollapsed"
+          :src="logoCaaam"
+          alt="Logo"
+          class="h-16 w-full"
+        />
+        <img
+          v-else
+          :src="logoCaaam2"
+          alt="Logo"
+          class="h-10 w-full object-contain"
+        />
+      </div>
+
+      <!-- User Avatar -->
+      <div class="p-4 flex flex-col items-center">
+        <img
+          :src="imgUser"
+          alt="User Avatar"
+          class="max-w-20 max-h-12 w-auto h-auto rounded-full"
+        />
+
+        <span
+          v-if="!isMenuCollapsed"
+          class="mt-2 text-sm font-medium text-gray-700"
+          >{{ fullName }}</span
+        >
+      </div>
+
+      <!-- Navigation Items -->
+      <nav class="flex-grow p-2">
+        <ul class="space-y-2">
+          <li v-for="item in navItems" :key="item.id">
+            <a
+              @click="currentView = item.id"
+              :class="[
+                'flex items-center rounded-md cursor-pointer transition-colors p-2',
+                currentView === item.id
+                  ? 'bg-blue-500 text-white'
+                  : 'hover:bg-gray-100 text-gray-700',
+                isMenuCollapsed ? 'justify-center' : 'px-4',
+              ]"
+            >
+              <component :is="item.icon" :size="20" />
+              <span v-if="!isMenuCollapsed" class="ml-3">{{ item.title }}</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Logout Option -->
+      <div class="p-4">
+        <button
+          @click="logout"
+          :class="[
+            'flex items-center rounded-md cursor-pointer transition-colors p-2 w-full',
+            'hover:bg-red-100 text-red-600',
+            isMenuCollapsed ? 'justify-center' : 'px-4',
+          ]"
+        >
+          <LogOut :size="20" />
+          <span v-if="!isMenuCollapsed" class="ml-3">Logout</span>
+        </button>
+      </div>
+
+      <!-- Toggle Menu Button -->
+      <button
+        @click="toggleMenu"
+        class="p-2 m-2 bg-gray-200 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 self-center"
+      >
+        <component
+          :is="isMenuCollapsed ? 'ChevronRight' : 'ChevronLeft'"
+          :size="20"
+        />
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      <div v-if="currentView === 'create'">
+        <CreateSchedules />
+      </div>
+      <div v-else-if="currentView === 'view'">
+        <h2 class="text-2xl font-bold mb-4">View Appointments</h2>
+        <!-- Add content for viewing appointments -->
+      </div>
+      <div v-else-if="currentView === 'Info'">
+        <h2 class="text-2xl font-bold mb-4">Settings</h2>
+        <!-- Add content for settings -->
+      </div>
+    </main>
+  </div>
+</template>
+
 <script setup>
-import { computed, ref } from 'vue'; // Importando ref para criar variáveis reativas
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Info, LogOut, NotebookPen, Table } from 'lucide-vue-next';
-import router from '@/router';
+import { ref, computed } from 'vue';
+import { Calendar, Info, LogOut } from 'lucide-vue-next';
+import logoCaaam from '@/assets/img/logocaaam.png';
+import logoCaaam2 from '@/assets/img/oab-logo-1.png';
 import { useAuthStore } from '@/stores/auth';
-import defaultAvatar from '@/assets/icon/default.png';
-import ProfileComponent from '@/components/ProfileComponent.vue';
-import CreateSchedules from '@/components/schedules/CreateSchedules.vue';
-import ViewSchedules from '@/components/ViewSchedules.vue';
-import ViewSchedulesStatus from '@/components/ViewSchedulesStatus.vue';
-
-const activeSectionComponent = computed(() => {
-  switch (activeSection.value) {
-    case 'profile':
-      return ProfileComponent;
-    case 'create-schedule':
-      return CreateSchedules;
-    case 'view-schedules':
-      return ViewSchedules;
-    case 'view-schedules-status':
-      return ViewSchedulesStatus;
-    default:
-      return CreateSchedules;
-  }
-});
+import router from '@/router';
 const auth = useAuthStore();
-const iconProfile =
-  auth?.user?.iconProfile === '' ? defaultAvatar : auth.user.iconProfile;
 
-const activeSection = ref('view-schedules'); // Defina a seção padrão que será exibida
+const fullName = computed(() => auth.fullName);
+
+import defaultIcon from '@/assets/icon/default.png';
+import CreateSchedules from '@/components/CreateSchedules.vue';
+
+const imgUser = computed(() =>
+  auth.user?.iconProfile === '' ? defaultIcon : auth.user?.iconProfile,
+);
+
+console.log;
+
+const navItems = [
+  { id: 'create', title: 'Criar ', icon: Calendar },
+  { id: 'view', title: 'Busca ', icon: Calendar },
+  { id: 'Info', title: 'Info', icon: Info },
+];
+
+const currentView = ref('create');
+const isMenuCollapsed = ref(false); 
+
+
+// const createAppointment = () => {
+//   if (!selectedRoom.value) {
+//     alert('Please select a room before creating an appointment.');
+//     return;
+//   }
+//   // Here you would typically send the form data to your backend
+//   console.log('Appointment created:', {
+//     ...appointmentForm,
+//     room: selectedRoom.value,
+//   });
+//   // Reset the form after submission
+//   appointmentForm.oab = '';
+//   appointmentForm.name = '';
+//   appointmentForm.phone = '';
+//   selectedRoom.value = null;
+//   // You might want to show a success message or redirect the user
+// };
+
+const toggleMenu = () => {
+  isMenuCollapsed.value = !isMenuCollapsed.value;
+};
 
 const logout = () => {
   auth.logout();
@@ -43,101 +161,10 @@ const logout = () => {
 };
 </script>
 
-<template>
-  <div class="h-full w-full pl-[56px]">
-    <!-- menu -->
-    <aside class="inset-y fixed left-0 z-20 flex h-full flex-col border-r">
-      <div class="p-2">
-        <Avatar>
-          <AvatarImage :src="`${iconProfile}`" alt="avatar" />
-        </Avatar>
-      </div>
-      <nav class="grid gap-1 p-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="rounded-lg"
-                aria-label="Criar Agendamento"
-                @click="activeSection = 'create-schedule'"
-              >
-                <NotebookPen class="size-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" :side-offset="5">
-              Criar Agendamento
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="rounded-lg"
-                aria-label="Buscar Agendamentos"
-                @click="activeSection = 'view-schedules'"
-              >
-                <Table class="size-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" :side-offset="5">
-              Buscar Agendamentos
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="rounded-lg"
-                aria-label="Perfil"
-                @click="activeSection = 'profile'"
-              >
-                <Info class="size-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" :side-offset="5">
-              Informações
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </nav>
-      <nav class="mt-auto grid gap-1 p-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="mt-auto rounded-lg"
-                aria-label="Sair"
-                @click="logout()"
-              >
-                <LogOut class="size-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" :side-offset="5">
-              Sair
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </nav>
-    </aside>
-
-    <!-- main -->
-    <div class="flex flex-col">
-      <div>
-        <!-- Renderiza apenas o componente da seção ativa -->
-        <component :is="activeSectionComponent" />
-      </div>
-    </div>
-  </div>
-</template>
-
-<style scoped></style>
+<style scoped>
+.img {
+  background-position: center;
+  background-size: cover;
+  background-clip: border-box;
+}
+</style>
